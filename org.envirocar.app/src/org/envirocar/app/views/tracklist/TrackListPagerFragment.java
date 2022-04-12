@@ -55,7 +55,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        BaseApplication.get(getActivity())
+        BaseApplication.Companion.get(getActivity())
                 .getBaseApplicationComponent()
                 .plus(new MainActivityModule(getActivity()))
                 .inject(this);

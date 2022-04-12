@@ -96,7 +96,7 @@ public class TrackRecordingHandler {
      */
     public TrackRecordingHandler(Context context) {
         // Inject all annotated fields.
-        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
+        BaseApplication.Companion.get(context).getBaseApplicationComponent().inject(this);
     }
 
     private Observable<Track> createNewDatabaseTrackObservable() {

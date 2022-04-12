@@ -164,7 +164,7 @@ public final class Tempomat extends FrameLayout {
     }
 
     private void init(Context context) {
-        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
+        BaseApplication.Companion.get(context).getBaseApplicationComponent().inject(this);
 
         // This FrameLayout view draws something on its own. Therefore, this flag has
         // to be set to true.

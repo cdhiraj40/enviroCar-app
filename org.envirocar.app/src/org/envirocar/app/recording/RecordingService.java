@@ -83,7 +83,7 @@ public class RecordingService extends ScopedBaseInjectorService {
 
     @Override
     protected void setupServiceComponent() {
-        BaseApplication.get(this)
+        BaseApplication.Companion.get(this)
                 .getBaseApplicationComponent()
                 .plus(new RecordingModule())
                 .inject(this);

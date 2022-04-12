@@ -75,6 +75,7 @@ import org.envirocar.remote.dao.RemoteTrackDAO;
 import org.envirocar.remote.dao.RemoteUserDAO;
 import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
 import org.envirocar.storage.EnviroCarVehicleDB;
+import org.envirocar.app.BaseApplication;
 
 import javax.inject.Singleton;
 

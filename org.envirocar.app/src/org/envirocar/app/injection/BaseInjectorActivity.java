@@ -44,7 +44,7 @@ public abstract class BaseInjectorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        injectDependencies(BaseApplication.get(this).getBaseApplicationComponent());
+        injectDependencies(BaseApplication.Companion.get(this).getBaseApplicationComponent());
     }
 
     @Override

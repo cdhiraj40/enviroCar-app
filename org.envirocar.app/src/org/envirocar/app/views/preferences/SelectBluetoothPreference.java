@@ -59,7 +59,7 @@ public class SelectBluetoothPreference extends DialogPreference {
         super(context, attrs);
 
         // Inject the required dependencies.
-        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
+        BaseApplication.Companion.get(context).getBaseApplicationComponent().inject(this);
 
         // Set the layout resource.
         setDialogLayoutResource(R.layout.bluetooth_selection_preference);

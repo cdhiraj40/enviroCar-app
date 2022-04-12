@@ -63,7 +63,7 @@ public class DAOProvider {
         this.mAppContext = context;
 
         // Extend the object graph with the injection modules for DAOs
-        baseApplicationComponent = BaseApplication.get(context).getBaseApplicationComponent();
+        baseApplicationComponent = BaseApplication.Companion.get(context).getBaseApplicationComponent();
         baseApplicationComponent.inject(this);
 
     }

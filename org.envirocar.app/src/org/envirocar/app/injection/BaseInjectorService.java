@@ -69,7 +69,7 @@ public abstract class BaseInjectorService extends LifecycleService {
      * @return
      */
     protected BaseApplicationComponent getBaseApplicationComponent() {
-        return BaseApplication.get(this).getBaseApplicationComponent();
+        return BaseApplication.Companion.get(this).getBaseApplicationComponent();
     }
 
     /**

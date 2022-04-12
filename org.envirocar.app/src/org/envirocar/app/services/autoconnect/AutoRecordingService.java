@@ -87,7 +87,7 @@ public class AutoRecordingService extends ScopedBaseInjectorService implements A
 
     @Override
     protected void setupServiceComponent() {
-        BaseApplication.get(this)
+        BaseApplication.Companion.get(this)
                 .getBaseApplicationComponent()
                 .plus(new AutoRecordingModule(this))
                 .inject(this);

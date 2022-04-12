@@ -92,7 +92,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MainActivityComponent mainActivityComponent =
-                BaseApplication.get(getActivity())
+                BaseApplication.Companion.get(requireActivity())
                         .getBaseApplicationComponent()
                         .plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);

@@ -78,7 +78,7 @@ public abstract class BaseInjectorFragment extends Fragment {
         // specific modules and the dependencies will be injected.
         if (!mAlreadyAttached) {
 
-            injectDependencies(BaseApplication.get(context).getBaseApplicationComponent());
+            injectDependencies(BaseApplication.Companion.get(context).getBaseApplicationComponent());
 
             mAlreadyAttached = true;
 

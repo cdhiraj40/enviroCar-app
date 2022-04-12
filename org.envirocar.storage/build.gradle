@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -20,8 +22,8 @@ dependencies {
     implementation rootProject.ext.supportV7
 
     // Dependency injection, view injection, event bus...
-    implementation rootProject.ext.dagger
-    annotationProcessor rootProject.ext.daggerCompiler
+    kapt ('com.google.dagger:dagger-compiler:2.38.1')
+    implementation('com.google.dagger:dagger:2.38.1')
 
     // RxJava dependencies
     implementation rootProject.ext.rxJava
@@ -42,7 +44,7 @@ dependencies {
 
     //Room dependencies
     implementation rootProject.ext.androidRoom
-    annotationProcessor rootProject.ext.supportRoom
+    kapt rootProject.ext.supportRoom
     implementation rootProject.ext.androidRoomRxJava
 
     implementation rootProject.ext.rxBindingCore
