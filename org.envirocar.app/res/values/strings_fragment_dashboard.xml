@@ -72,4 +72,7 @@
 
     <string name="dashboard_engine_not_running_dialog_title">Connection Failed</string>
     <string name="dashboard_engine_not_running_dialog_content">Unable to connect to the engine. Please make sure that the engine is running.</string>
+
+    <string name="audio_permission_granted">Record audio permission granted. Please Restart the application to start using voice command feature. </string>
+    <string name="audio_permission_denied">Audio permission denied. You can\'t use voice command feature.</string>
 </resources>

@@ -227,7 +227,6 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
     private lateinit var viewModel: AimyboxAssistantViewModel
     private var revealTimeMs = 0L
 
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -303,7 +302,10 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
             }
             .blockingFirst()
 
-            return contentView
+        if(!PermissionUtils.hasAudioPermission(context)) {
+            checkAndRequestPermissions()
+        }
+        return contentView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -350,24 +352,47 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
         permissions: Array<String>,
         grantResults: IntArray
     ) {
-        when (requestCode) {
-            LOCATION_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    LOG.info("Location permission has been granted")
-                    Snackbar.make(
-                        requireView(), "Location Permission granted.",
-                        BaseTransientBottomBar.LENGTH_SHORT
-                    ).show()
-                    onStartTrackButtonClicked()
-                } else {
-                    LOG.info("Location permission has been denied")
-                    Snackbar.make(
-                        requireView(), "Location Permission denied.",
-                        BaseTransientBottomBar.LENGTH_LONG
-                    ).show()
+
+            when (requestCode) {
+                LOCATION_PERMISSION_REQUEST_CODE -> {
+                    if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        LOG.info("Location permission has been granted")
+                        Snackbar.make(
+                            requireView(), "Location Permission granted.",
+                            BaseTransientBottomBar.LENGTH_SHORT
+                        ).show()
+                        onStartTrackButtonClicked()
+                    } else {
+                        LOG.info("Location permission has been denied")
+                        Snackbar.make(
+                            requireView(), "Location Permission denied.",
+                            BaseTransientBottomBar.LENGTH_LONG
+                        ).show()
+                    }
                 }
-            }
+                AUDIO_PERMISSION_REQUEST_CODE -> {
+                    if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        LOG.info("Audio permission has been granted")
+                        Snackbar.make(
+                            requireView(), getString(R.string.audio_permission_granted),
+                            BaseTransientBottomBar.LENGTH_SHORT
+                        ).show()
+                        if(!PermissionUtils.hasLocationPermission(context)){
+                            requestPermissions(
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                                LOCATION_PERMISSION_REQUEST_CODE
+                            )
+                        }
+                    } else {
+                        LOG.info("audio permission has been denied")
+                        Snackbar.make(
+                            requireView(), getString(R.string.audio_permission_denied),
+                            BaseTransientBottomBar.LENGTH_LONG
+                        ).show()
+                    }
+                }
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     private fun onToolbarItemClicked(menuItem: MenuItem) {
@@ -973,6 +998,12 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
         }
     }
 
+    private fun checkAndRequestPermissions() {
+        requestPermissions(
+            arrayOf(Manifest.permission.RECORD_AUDIO), AUDIO_PERMISSION_REQUEST_CODE,
+        )
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 121 && resultCode != Activity.RESULT_OK) {
             appUpdateCheck()
@@ -987,6 +1018,7 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
         private const val REQUEST_PERMISSION_CODE = 100
 
         private const val ARGUMENTS_KEY = "arguments"
+        private const val AUDIO_PERMISSION_REQUEST_CODE = 1
     }
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + Job()

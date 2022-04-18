@@ -29,10 +29,8 @@ import com.justai.aimybox.Aimybox
 import com.justai.aimybox.api.aimybox.AimyboxDialogApi
 import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config
+import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
-import com.justai.aimybox.speechkit.kaldi.KaldiAssets
-import com.justai.aimybox.speechkit.kaldi.KaldiSpeechToText
-import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
 import com.mapbox.mapboxsdk.Mapbox
 import io.reactivex.disposables.CompositeDisposable
 import org.acra.ACRA
@@ -41,6 +39,8 @@ import org.acra.annotation.AcraCore
 import org.envirocar.app.handler.ApplicationSettings
 import org.envirocar.app.handler.LocationHandler
 import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor
+import org.envirocar.app.kaldi_speech_kit.KaldiAssets
+import org.envirocar.app.kaldi_speech_kit.KaldiVoiceTrigger
 import org.envirocar.app.notifications.AutomaticUploadNotificationHandler
 import org.envirocar.app.notifications.NotificationHandler
 import org.envirocar.app.rxutils.RxBroadcastReceiver
@@ -215,7 +215,7 @@ class BaseApplication : Application(), AimyboxProvider {
         val unitId = UUID.randomUUID().toString()
 
         val textToSpeech = GooglePlatformTextToSpeech(context, Locale.getDefault())
-        val speechToText = KaldiSpeechToText(assets)
+        val speechToText = GooglePlatformSpeechToText(context, Locale.getDefault())
 
         val dialogApi = AimyboxDialogApi(
             AIMYBOX_API_KEY, unitId, customSkills = linkedSetOf(MyCustomSkill(context))

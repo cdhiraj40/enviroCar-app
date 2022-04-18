@@ -54,7 +54,7 @@ dependencies {
 
     implementation("com.just-ai.aimybox:core:$aimyboxVersion")
     implementation("com.just-ai.aimybox:google-platform-speechkit:$aimyboxVersion")
-    implementation("com.just-ai.aimybox:kaldi-speechkit:$aimyboxVersion")
+//    implementation("com.just-ai.aimybox:kaldi-speechkit:$aimyboxVersion")
     implementation("com.just-ai.aimybox:components:$aimyboxVersion")
     implementation("com.just-ai.aimybox:dummy-api:$aimyboxVersion")
     implementation("com.alphacephei:vosk-android:0.3.32")
@@ -64,7 +64,7 @@ dependencies {
 
     implementation("com.github.bumptech.glide:glide:4.13.0")
     kapt("com.github.bumptech.glide:compiler:4.13.0")
-//    implementation ("net.java.dev.jna:jna:5.10.0@aar")
+    implementation ("net.java.dev.jna:jna:5.10.0@aar")
 
     // RxBindings
     implementation rootProject.ext.rxBindingCore
