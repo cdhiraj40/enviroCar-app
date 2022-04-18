@@ -145,38 +145,7 @@ public class CarSelectionAttributesFragment extends BaseInjectorFragment {
         String model = modelEditText.getText().toString().trim();
         String year = yearEditText.getText().toString().trim();
         View focusView = null;
-//        allotment_date =
-//        axles = "2"
-//        bodywork = "0200"
-//        category = "01"
-//        commerical_name = "RENAULT V6 TURBO"
-//        engine_capacity = "2458"
-//        id = "306"
-//        manufacturer = "ALPINE (F)"
-//        manufacturer_id = "3033"
-//        maximum_mass = "1560"
-//        power = "136"
-//        power_source_id = "01"
-//        powered_axles = "1"
-//        seats = "4"
-//        trade = ""
-//        shadow$_klass_ = {Class@22403} "class org.envirocar.core.entity.Vehicles"
-//        shadow$_monitor_ = 0
-//        List<Vehicles> vehiclesList = new ArrayList<Vehicles>();
-//        vehiclesList.add(
-//                "01.09.1987",
-//                "2",
-//                "0200",
-//                "01",
-//                "RENAULT V6 TURBO",
-//                "2458",
-//                "306",
-//                "ALPINE (F)",
-//                "3033",
-//                "1560",
-//
-//
-//        )
+
         if (manufacturer.isEmpty()) {
             manufactureEditText.setError(getString(R.string.car_selection_error_empty_input), error);
             focusView = manufactureEditText;
