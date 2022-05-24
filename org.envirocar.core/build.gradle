@@ -25,6 +25,7 @@ dependencies {
     // Dependency injection, view injection, event bus...
     kapt ('com.google.dagger:dagger-compiler:2.38.1')
     implementation('com.google.dagger:dagger:2.38.1')
+    implementation("com.just-ai.aimybox:core:0.16.9")
     implementation rootProject.ext.otto
 
     // RxJava dependencies

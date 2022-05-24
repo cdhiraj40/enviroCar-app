@@ -19,6 +19,7 @@
 package org.envirocar.app.views.dashboard
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothDevice
 import android.content.Context
@@ -58,6 +59,7 @@ import com.jakewharton.rxbinding3.appcompat.itemClicks
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.components.AimyboxAssistantViewModel
 import com.justai.aimybox.components.AimyboxProvider
+import com.justai.aimybox.model.TextSpeech
 import com.squareup.otto.Subscribe
 import info.hoang8f.android.segmented.SegmentedGroup
 import io.reactivex.Observable
@@ -93,11 +95,13 @@ import org.envirocar.core.events.NewUserSettingsEvent
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent
 import org.envirocar.core.events.gps.GpsStateChangedEvent
+import org.envirocar.core.events.voice_commands.StartTrackEvent
 import org.envirocar.core.logging.Logger
 import org.envirocar.core.utils.PermissionUtils
 import org.envirocar.core.utils.ServiceUtils
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent
 import org.envirocar.obd.service.BluetoothServiceState
+import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -106,6 +110,7 @@ import kotlin.math.roundToInt
 /**
  * @author dewall
  */
+
 class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
     // View Injections
     @BindView(R.id.fragment_dashboard_toolbar)
@@ -222,6 +227,7 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
     private lateinit var indicatorSyncGroup: MutableList<SizeSyncTextView?>
     private lateinit var appUpdateManager: AppUpdateManager
     private lateinit var appUpdateInfoTask: Task<AppUpdateInfo>
+    private lateinit var aimyboxProvider: AimyboxProvider
 
 
     private lateinit var viewModel: AimyboxAssistantViewModel
@@ -230,7 +236,7 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val aimyboxProvider = requireNotNull(findAimyboxProvider()) {
+        aimyboxProvider = requireNotNull(findAimyboxProvider()) {
             "Parent Activity or Application must implement AimyboxProvider interface"
         }
 
@@ -302,16 +308,20 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
             }
             .blockingFirst()
 
-        if(!PermissionUtils.hasAudioPermission(context)) {
+        if (!PermissionUtils.hasAudioPermission(context)) {
             checkAndRequestPermissions()
         }
         return contentView
     }
 
+
+    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel.aimyboxState.observe(viewLifecycleOwner) { state ->
             if (state == Aimybox.State.LISTENING) {
-                Toast.makeText(requireContext(), "STARTED LISTENING", Toast.LENGTH_SHORT).show()
+//                aimyboxProvider.aimybox.speak(TextSpeech("STARTED LISTENING"))
+                Toast.makeText(requireContext(), "STARTED LISTENING", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -353,44 +363,44 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
         grantResults: IntArray
     ) {
 
-            when (requestCode) {
-                LOCATION_PERMISSION_REQUEST_CODE -> {
-                    if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        LOG.info("Location permission has been granted")
-                        Snackbar.make(
-                            requireView(), "Location Permission granted.",
-                            BaseTransientBottomBar.LENGTH_SHORT
-                        ).show()
-                        onStartTrackButtonClicked()
-                    } else {
-                        LOG.info("Location permission has been denied")
-                        Snackbar.make(
-                            requireView(), "Location Permission denied.",
-                            BaseTransientBottomBar.LENGTH_LONG
-                        ).show()
-                    }
+        when (requestCode) {
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    LOG.info("Location permission has been granted")
+                    Snackbar.make(
+                        requireView(), "Location Permission granted.",
+                        BaseTransientBottomBar.LENGTH_SHORT
+                    ).show()
+                    onStartTrackButtonClicked()
+                } else {
+                    LOG.info("Location permission has been denied")
+                    Snackbar.make(
+                        requireView(), "Location Permission denied.",
+                        BaseTransientBottomBar.LENGTH_LONG
+                    ).show()
                 }
-                AUDIO_PERMISSION_REQUEST_CODE -> {
-                    if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        LOG.info("Audio permission has been granted")
-                        Snackbar.make(
-                            requireView(), getString(R.string.audio_permission_granted),
-                            BaseTransientBottomBar.LENGTH_SHORT
-                        ).show()
-                        if(!PermissionUtils.hasLocationPermission(context)){
-                            requestPermissions(
-                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                                LOCATION_PERMISSION_REQUEST_CODE
-                            )
-                        }
-                    } else {
-                        LOG.info("audio permission has been denied")
-                        Snackbar.make(
-                            requireView(), getString(R.string.audio_permission_denied),
-                            BaseTransientBottomBar.LENGTH_LONG
-                        ).show()
+            }
+            AUDIO_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    LOG.info("Audio permission has been granted")
+                    Snackbar.make(
+                        requireView(), getString(R.string.audio_permission_granted),
+                        BaseTransientBottomBar.LENGTH_SHORT
+                    ).show()
+                    if (!PermissionUtils.hasLocationPermission(context)) {
+                        requestPermissions(
+                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                            LOCATION_PERMISSION_REQUEST_CODE
+                        )
                     }
+                } else {
+                    LOG.info("audio permission has been denied")
+                    Snackbar.make(
+                        requireView(), getString(R.string.audio_permission_denied),
+                        BaseTransientBottomBar.LENGTH_LONG
+                    ).show()
                 }
+            }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -956,7 +966,8 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
             else -> {}
         }
     }
-//apprentatish
+
+    //apprentatish
     private fun initTextSynchronization() {
         // text size synchonization grp for indicators
         indicatorSyncGroup = ArrayList()
@@ -1007,6 +1018,47 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 121 && resultCode != Activity.RESULT_OK) {
             appUpdateCheck()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
+    }
+
+    @SuppressLint("MissingPermission")
+    @org.greenrobot.eventbus.Subscribe
+    fun onStartEvent(event: StartTrackEvent) {
+        val aimybox = event.aimybox
+
+        if (!PermissionUtils.hasLocationPermission(context)) {
+            /**
+             *  Google-text-to-speech will give exception
+             *  if location permission is not given/language not provided for `TextSpeech`
+             */
+            aimybox.speak(
+                TextSpeech(
+                    "Location permission is not given, please give"
+                )
+            )
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else if (!gpsIndicator.isActivated) {
+            aimybox.speak(TextSpeech("Location is not turned on, please turn on the location"))
+            onGPSIndicatorClicked()
+        } else {
+            aimybox.speak(TextSpeech("Starting the track"))
+            val gpsOnlyIntent = Intent(context, RecordingService::class.java)
+            ServiceUtils.startService(context, gpsOnlyIntent)
         }
     }
 

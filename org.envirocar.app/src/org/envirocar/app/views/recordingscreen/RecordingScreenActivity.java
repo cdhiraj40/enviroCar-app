@@ -1,27 +1,30 @@
 /**
  * Copyright (C) 2013 - 2021 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.recordingscreen;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -33,6 +36,8 @@ import android.widget.TextView;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.justai.aimybox.Aimybox;
+import com.justai.aimybox.model.TextSpeech;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -52,9 +57,17 @@ import org.envirocar.app.recording.events.RecordingStateEvent;
 import org.envirocar.app.views.BaseMainActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
+import org.envirocar.core.events.voice_commands.Enums;
+import org.envirocar.core.events.voice_commands.PositiveDialogEvent;
+import org.envirocar.core.events.voice_commands.RecordingTrackEvent;
+import org.envirocar.core.events.voice_commands.StopTrackEvent;
 import org.envirocar.core.logging.Logger;
+import org.greenrobot.eventbus.EventBus;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -164,6 +177,10 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
         // show initial animation
         initAnimations();
+
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
     }
 
     @Override
@@ -193,6 +210,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     @OnClick(R.id.activity_recscreen_switchbutton)
@@ -209,16 +227,22 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     protected void onStopButtonClicked() {
         LOG.info("Stop button has been clicked. Showing dialog to request confirmation");
 
-        new MaterialAlertDialogBuilder(this,R.style.MaterialDialog)
+        MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(this, R.style.MaterialDialog)
                 .setTitle(R.string.dashboard_dialog_stop_track)
                 .setMessage(R.string.dashboard_dialog_stop_track_content)
                 .setIcon(R.drawable.ic_outline_stop_circle_24)
-                .setPositiveButton(R.string.ok,(dialog, which) -> {
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
                     trackRecordingHandler.finishCurrentTrack();
                     finish();
                 })
-                .setNegativeButton(R.string.cancel,null)
-                .show();
+                .setNegativeButton(R.string.cancel, null);
+
+        // check if on main thread or background(stopping from voice command)
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            alertDialog.show();
+        } else {
+            new Handler(Looper.getMainLooper()).post(alertDialog::show);
+        }
     }
 
     @Subscribe
@@ -291,9 +315,9 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     }
 
     @Subscribe
-    public void onRecordingStateEvent(RecordingStateEvent event){
+    public void onRecordingStateEvent(RecordingStateEvent event) {
         LOG.info("Received event: %s", event.toString());
-        if (event.recordingState == RecordingState.RECORDING_STOPPED){
+        if (event.recordingState == RecordingState.RECORDING_STOPPED) {
             runOnUiThread(() -> this.finish());
         }
     }
@@ -375,6 +399,44 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         } else {
             view.setVisibility(View.VISIBLE);
             view.startAnimation(animation);
+        }
+    }
+
+    @org.greenrobot.eventbus.Subscribe
+    public void onStopEvent(StopTrackEvent event) {
+        onStopButtonClicked();
+    }
+
+    @SuppressLint("MissingPermission")
+    @org.greenrobot.eventbus.Subscribe
+    public void onPositiveEvent(PositiveDialogEvent event) {
+        String message = "Finishing the track";
+        event.getAimybox().speak(new TextSpeech(message, null), Aimybox.NextAction.STANDBY);
+        trackRecordingHandler.finishCurrentTrack();
+        finish();
+    }
+
+    @SuppressLint("MissingPermission")
+    @org.greenrobot.eventbus.Subscribe
+    public void onRecordingEvent(RecordingTrackEvent event) {
+        Aimybox.NextAction nextAction =
+                (event.getNextAction() == null) ? Aimybox.NextAction.STANDBY : event.getNextAction();
+        if (event.getMessage() == Enums.Recording.CHANGE_VIEW) {
+            String message = "Changing View";
+            event.getAimybox().speak(new TextSpeech(message, null), nextAction);
+            onSwitchViewsButtonClicked();
+
+        } else if (event.getMessage() == Enums.Recording.DISTANCE) {
+            String message = String.format("Distance travelled is %s", distanceText.getText().toString());
+            event.getAimybox().speak(new TextSpeech(message, null), nextAction);
+
+        } else if (event.getMessage() == Enums.Recording.TRAVEL_TIME) {
+            String message = String.format("Travel time is %s", timerText.getText());
+            event.getAimybox().speak(new TextSpeech(message, null), nextAction);
+
+        } else if (event.getMessage() == Enums.Recording.TIME) {
+            String message = String.format("Current time is %s", new SimpleDateFormat("HHmm", Locale.getDefault()).format(new Date()));
+            event.getAimybox().speak(new TextSpeech(message, null), nextAction);
         }
     }
 }

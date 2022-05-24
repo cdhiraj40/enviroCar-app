@@ -56,9 +56,12 @@ import org.envirocar.app.views.others.OthersFragment;
 import org.envirocar.app.views.others.TroubleshootingFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;
+import org.envirocar.core.events.voice_commands.StartTrackEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Stack;
 
@@ -276,6 +279,15 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     @Override
+    protected void onStart() {
+        LOGGER.info("BaseMainActivity : onStart()");
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         LOGGER.info("BaseMainActivity : onDestroy()");
         super.onDestroy();
@@ -286,6 +298,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         if (!subscriptions.isDisposed()) {
             subscriptions.dispose();
         }
+        EventBus.getDefault().unregister(this);
     }
 
     private void addPreferenceSubscriptions() {
@@ -321,6 +334,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
             this.navigationBottomBar.setKeepScreenOn(false);
         }
     }
+
+    @org.greenrobot.eventbus.Subscribe
+    public void onStartEvent(StartTrackEvent event){
+        LOGGER.info(String.format("onStartEvent(): event=%s", event.getAimybox()));
+    }
+
 
     @Subscribe
     public void onReceiveTrackFinishedEvent(final TrackFinishedEvent event) {

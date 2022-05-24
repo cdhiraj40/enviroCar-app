@@ -26,7 +26,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import com.justai.aimybox.Aimybox
-import com.justai.aimybox.api.aimybox.AimyboxDialogApi
 import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
@@ -66,7 +65,7 @@ class BaseApplication : Application(), AimyboxProvider {
     private var mScreenReceiver: BroadcastReceiver? = null
 
     @Inject
-     lateinit var userService: UserService
+    lateinit var userService: UserService
 
     @Inject
     lateinit var carService: CarService
@@ -95,7 +94,7 @@ class BaseApplication : Application(), AimyboxProvider {
 
     @Inject
     lateinit var automaticUploadHandler: AutomaticUploadNotificationHandler
-     val disposables: CompositeDisposable = CompositeDisposable()
+    val disposables: CompositeDisposable = CompositeDisposable()
 
     override fun onCreate() {
         super.onCreate()
@@ -217,9 +216,10 @@ class BaseApplication : Application(), AimyboxProvider {
         val textToSpeech = GooglePlatformTextToSpeech(context, Locale.getDefault())
         val speechToText = GooglePlatformSpeechToText(context, Locale.getDefault())
 
-        val dialogApi = AimyboxDialogApi(
-            AIMYBOX_API_KEY, unitId, customSkills = linkedSetOf(MyCustomSkill(context))
-        )
+//        val dialogApi = AimyboxDialogApi(
+//            AIMYBOX_API_KEY, unitId, customSkills = linkedSetOf(MyCustomSkill(context))
+//        )
+        val dialogApi = TestDialogApi(dummyCustomSkill = TestCustomSkill())
 
         return Aimybox(Config.create(speechToText, textToSpeech, dialogApi) {
             this.voiceTrigger = voiceTrigger
@@ -231,7 +231,7 @@ class BaseApplication : Application(), AimyboxProvider {
             BaseApplication::class.java
         )
 
-        private const val AIMYBOX_API_KEY = ""
+//        private const val AIMYBOX_API_KEY = ""
 
         operator fun get(context: Context): BaseApplication {
             return context.applicationContext as BaseApplication
