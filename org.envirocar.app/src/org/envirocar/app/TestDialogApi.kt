@@ -6,7 +6,7 @@ import com.justai.aimybox.core.CustomSkill
 import com.justai.aimybox.dialogapi.dummy.DummyRequest
 
 class TestDialogApi(
-    private val dummyCustomSkill: TestCustomSkill = TestCustomSkill()
+    private val dummyCustomSkill: TestCustomSkill = TestCustomSkill(null)
 ) : DialogApi<DummyRequest, DummyResponse>() {
 
     override fun createRequest(query: String) = DummyRequest(query)

@@ -101,7 +101,6 @@ import org.envirocar.core.utils.PermissionUtils
 import org.envirocar.core.utils.ServiceUtils
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent
 import org.envirocar.obd.service.BluetoothServiceState
-import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -1023,18 +1022,14 @@ class DashboardFragment : BaseInjectorFragment(), CoroutineScope {
 
     override fun onStart() {
         super.onStart()
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this)
-        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        EventBus.getDefault().unregister(this)
     }
 
     @SuppressLint("MissingPermission")
-    @org.greenrobot.eventbus.Subscribe
+    @Subscribe
     fun onStartEvent(event: StartTrackEvent) {
         val aimybox = event.aimybox
 

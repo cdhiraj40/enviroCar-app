@@ -62,7 +62,6 @@ import org.envirocar.core.events.voice_commands.PositiveDialogEvent;
 import org.envirocar.core.events.voice_commands.RecordingTrackEvent;
 import org.envirocar.core.events.voice_commands.StopTrackEvent;
 import org.envirocar.core.logging.Logger;
-import org.greenrobot.eventbus.EventBus;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -177,10 +176,6 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
 
         // show initial animation
         initAnimations();
-
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
     }
 
     @Override
@@ -210,7 +205,6 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     @OnClick(R.id.activity_recscreen_switchbutton)
@@ -402,13 +396,13 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
         }
     }
 
-    @org.greenrobot.eventbus.Subscribe
+    @Subscribe
     public void onStopEvent(StopTrackEvent event) {
         onStopButtonClicked();
     }
 
     @SuppressLint("MissingPermission")
-    @org.greenrobot.eventbus.Subscribe
+    @Subscribe
     public void onPositiveEvent(PositiveDialogEvent event) {
         String message = "Finishing the track";
         event.getAimybox().speak(new TextSpeech(message, null), Aimybox.NextAction.STANDBY);
@@ -417,7 +411,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     }
 
     @SuppressLint("MissingPermission")
-    @org.greenrobot.eventbus.Subscribe
+    @Subscribe
     public void onRecordingEvent(RecordingTrackEvent event) {
         Aimybox.NextAction nextAction =
                 (event.getNextAction() == null) ? Aimybox.NextAction.STANDBY : event.getNextAction();

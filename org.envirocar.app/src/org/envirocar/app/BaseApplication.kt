@@ -31,6 +31,7 @@ import com.justai.aimybox.core.Config
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
 import com.mapbox.mapboxsdk.Mapbox
+import com.squareup.otto.Bus
 import io.reactivex.disposables.CompositeDisposable
 import org.acra.ACRA
 import org.acra.BuildConfig
@@ -91,6 +92,9 @@ class BaseApplication : Application(), AimyboxProvider {
 
     @Inject
     lateinit var locationHandler: LocationHandler
+
+    @Inject
+    lateinit var mBus: Bus
 
     @Inject
     lateinit var automaticUploadHandler: AutomaticUploadNotificationHandler
@@ -219,7 +223,7 @@ class BaseApplication : Application(), AimyboxProvider {
 //        val dialogApi = AimyboxDialogApi(
 //            AIMYBOX_API_KEY, unitId, customSkills = linkedSetOf(MyCustomSkill(context))
 //        )
-        val dialogApi = TestDialogApi(dummyCustomSkill = TestCustomSkill())
+        val dialogApi = TestDialogApi(dummyCustomSkill = TestCustomSkill(mBus))
 
         return Aimybox(Config.create(speechToText, textToSpeech, dialogApi) {
             this.voiceTrigger = voiceTrigger

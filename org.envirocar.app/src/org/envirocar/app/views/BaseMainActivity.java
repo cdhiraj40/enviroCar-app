@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2021 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -36,6 +36,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
@@ -60,8 +61,6 @@ import org.envirocar.core.events.voice_commands.StartTrackEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Stack;
 
@@ -99,6 +98,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected DAOProvider mDAOProvider;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
+    @Inject
+    protected Bus mBus;
 
     // activity scoped
     @Inject
@@ -172,7 +173,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 // Handle the back button event
                 callbackStack.pop();
                 viewPager.setCurrentItem(callbackStack.peek());
-                if(callbackStack.size() < 2)
+                if (callbackStack.size() < 2)
                     this.setEnabled(false);
             }
         };
@@ -282,9 +283,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected void onStart() {
         LOGGER.info("BaseMainActivity : onStart()");
         super.onStart();
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
     }
 
     @Override
@@ -298,7 +296,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         if (!subscriptions.isDisposed()) {
             subscriptions.dispose();
         }
-        EventBus.getDefault().unregister(this);
     }
 
     private void addPreferenceSubscriptions() {
@@ -335,8 +332,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
         }
     }
 
-    @org.greenrobot.eventbus.Subscribe
-    public void onStartEvent(StartTrackEvent event){
+    @Subscribe
+    public void onStartEvent(StartTrackEvent event) {
         LOGGER.info(String.format("onStartEvent(): event=%s", event.getAimybox()));
     }
 
