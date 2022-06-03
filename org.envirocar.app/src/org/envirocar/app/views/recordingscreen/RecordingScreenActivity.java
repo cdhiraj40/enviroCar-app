@@ -405,7 +405,7 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
     @Subscribe
     public void onPositiveEvent(PositiveDialogEvent event) {
         String message = "Finishing the track";
-        event.getAimybox().speak(new TextSpeech(message, null), Aimybox.NextAction.STANDBY);
+        event.getAimybox().speak(new TextSpeech(message, null), Aimybox.NextAction.STANDBY, true);
         trackRecordingHandler.finishCurrentTrack();
         finish();
     }
@@ -417,20 +417,20 @@ public class RecordingScreenActivity extends BaseInjectorActivity {
                 (event.getNextAction() == null) ? Aimybox.NextAction.STANDBY : event.getNextAction();
         if (event.getMessage() == Enums.Recording.CHANGE_VIEW) {
             String message = "Changing View";
-            event.getAimybox().speak(new TextSpeech(message, null), nextAction);
+            event.getAimybox().speak(new TextSpeech(message, null), nextAction, true);
             onSwitchViewsButtonClicked();
 
         } else if (event.getMessage() == Enums.Recording.DISTANCE) {
             String message = String.format("Distance travelled is %s", distanceText.getText().toString());
-            event.getAimybox().speak(new TextSpeech(message, null), nextAction);
+            event.getAimybox().speak(new TextSpeech(message, null), nextAction, true);
 
         } else if (event.getMessage() == Enums.Recording.TRAVEL_TIME) {
             String message = String.format("Travel time is %s", timerText.getText());
-            event.getAimybox().speak(new TextSpeech(message, null), nextAction);
+            event.getAimybox().speak(new TextSpeech(message, null), nextAction, true);
 
         } else if (event.getMessage() == Enums.Recording.TIME) {
             String message = String.format("Current time is %s", new SimpleDateFormat("HHmm", Locale.getDefault()).format(new Date()));
-            event.getAimybox().speak(new TextSpeech(message, null), nextAction);
+            event.getAimybox().speak(new TextSpeech(message, null), nextAction, true);
         }
     }
 }

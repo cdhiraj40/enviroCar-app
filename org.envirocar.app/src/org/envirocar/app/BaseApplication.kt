@@ -39,8 +39,8 @@ import org.acra.annotation.AcraCore
 import org.envirocar.app.handler.ApplicationSettings
 import org.envirocar.app.handler.LocationHandler
 import org.envirocar.app.handler.userstatistics.UserStatisticsProcessor
-import org.envirocar.app.kaldi_speech_kit.KaldiAssets
-import org.envirocar.app.kaldi_speech_kit.KaldiVoiceTrigger
+import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
+import com.justai.aimybox.speechkit.kaldi.KaldiAssets
 import org.envirocar.app.notifications.AutomaticUploadNotificationHandler
 import org.envirocar.app.notifications.NotificationHandler
 import org.envirocar.app.rxutils.RxBroadcastReceiver
@@ -227,7 +227,7 @@ class BaseApplication : Application(), AimyboxProvider {
 
         return Aimybox(Config.create(speechToText, textToSpeech, dialogApi) {
             this.voiceTrigger = voiceTrigger
-        })
+        }, context)
     }
 
     companion object {
