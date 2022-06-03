@@ -209,8 +209,15 @@ class BaseApplication : Application(), AimyboxProvider {
     override val aimybox by lazy { createAimybox(this) }
 
     private fun createAimybox(context: Context): Aimybox {
-        // change model based on language
-        val assets = KaldiAssets.fromApkAssets(this, "model/en")
+
+        val deviceLanguage = Locale.getDefault().language
+
+        // selecting model based on language
+        val assets: KaldiAssets = if (deviceLanguage == "en") {
+            KaldiAssets.fromApkAssets(this, "model/en")
+        } else {
+            KaldiAssets.fromApkAssets(this, "model/de")
+        }
 
         // trigger words
         val voiceTrigger = KaldiVoiceTrigger(assets, listOf("listen", "envirocar"))
